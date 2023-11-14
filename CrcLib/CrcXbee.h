@@ -48,10 +48,10 @@ public:
     bool ReadDigitalChannel(BUTTON channel) const;
 
     // Reads the analog (0 to 255) value of a joystick on the remote
-    uint8_t ReadAnalogChannel(ANALOG channel) const;
+    int8_t ReadAnalogChannel(ANALOG channel) const;
 
     // Starts the serial channels
-    void Initialize(HardwareSerial& stream);
+    void Initialize(HardwareSerial& serial);
 
     // Reads the data and saves it to the payload
     void UpdateData(uint8_t batStatus);
@@ -68,17 +68,22 @@ public:
 private:
     typedef enum {
         BEGIN,
-        WAITING,
-        RECVONE,
+        WAITING_DL,
+        WAITING_DH,
+        WAITING_BD,
         READY,
     } init_state_t;
 
     // xBee Object that manages data
     XBee _xbee = XBee();
+    HardwareSerial* _serial;
 
     // Remote address
     XBeeAddress64 _addr;
     init_state_t _addrInitState;
+
+    // Is it an XBee?
+    bool _isXBee;
 
     // Watchdog and communication timer
     unsigned long _lastUpdate = 0;
@@ -96,6 +101,8 @@ private:
 
     // Last state of the remote
     RemoteState _state;
+
+    void HandleInit(AtCommandResponse* rx);
 };
 }
 

@@ -13,6 +13,32 @@
 using CrcUtility::ANALOG;
 using CrcUtility::BUTTON;
 
+using CrcUtility::Color;
+using CrcUtility::ColorDuration;
+using CrcUtility::ColorPattern;
+using CrcUtility::Note;
+using CrcUtility::SimpleColorPattern;
+using CrcUtility::SimpleTune;
+using CrcUtility::Tune;
+
+using CrcUtility::NO_COLOR;
+
+using CrcUtility::BLUE_HIGH;
+using CrcUtility::BLUE_LOW;
+using CrcUtility::CYAN_HIGH;
+using CrcUtility::CYAN_LOW;
+using CrcUtility::GREEN_HIGH;
+using CrcUtility::GREEN_LOW;
+using CrcUtility::MAGENTA_HIGH;
+using CrcUtility::MAGENTA_LOW;
+using CrcUtility::ORANGE_HIGH;
+using CrcUtility::RED_HIGH;
+using CrcUtility::RED_LOW;
+using CrcUtility::WHITE_HIGH;
+using CrcUtility::WHITE_LOW;
+using CrcUtility::YELLOW_HIGH;
+using CrcUtility::YELLOW_LOW;
+
 //---------- Constants or Defaults ------------
 // The number of program scans between CRC_LED_ST state changes.
 // A >20ms scan time flashes every second or more, indicating a potential
@@ -101,11 +127,12 @@ public:
     public:
         void Start(uint32_t delay);
         bool IsFinished();
+        bool IsWaiting();
         void Next();
 
     private:
-        uint32_t _started;
-        uint32_t _delay = 0;
+        uint32_t _started = 0;
+        uint32_t _delay   = 0;
     };
 
     /** Default constructor. */
@@ -280,6 +307,22 @@ public:
     // Returns TRUE when communication with CrcConnect is active
     static bool IsCommValid();
 
+    /** Stops all stuff that's currently happening and displays some form of
+     * error output. */
+    static void StopEverythingFromError(
+        const Note notes[], const ColorDuration colors[]);
+
+    // Play a tune on the CrcDuino buzzer
+    static void PlayTune(const Note notes[], bool repeat);
+    static void PlayTune(Tune* tune);
+
+    // Display a color on the NeoPixel
+    static void SetColor(const Color color);
+
+    // Display a light pattern on the NeoPixel
+    static void ShowColorPattern(const ColorDuration colors[], bool repeat);
+    static void ShowColorPattern(ColorPattern* pattern);
+
 private:
     struct ServoInfo {
         Servo* servo;
@@ -298,9 +341,9 @@ private:
      * error output. */
     static void StopEverythingFromError(unsigned char errorCode);
 
-    static unsigned char GetErrorTune(unsigned char errorCode);
+    static const Note* GetErrorTune(unsigned char errorCode);
 
-    static unsigned char GetErrorLightPattern(unsigned char errorCode);
+    static const ColorDuration* GetErrorLightPattern(unsigned char errorCode);
 
     // Reset all outputs that were potentially set to 0
     static void StopAllOutput();

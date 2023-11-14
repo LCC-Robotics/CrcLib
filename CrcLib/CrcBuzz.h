@@ -1,6 +1,7 @@
 #ifndef CrcBuzz_h
 #define CrcBuzz_h
 
+#include "CrcUtils.h"
 #include <Arduino.h>
 
 namespace CrcUtility {
@@ -94,90 +95,58 @@ namespace CrcUtility {
 #define NOTE_D8 4699
 #define NOTE_DS8 4978
 
-#define NO_TUNE 255
-#define TUNE_TEST 0
-#define TUNE_METRO 1
-#define TUNE_CONNECTED 2
-#define TUNE_DISCONNECTED 3
-#define TUNE_PIN_ERROR 4
-#define TUNE_SPARE 5
-#define TUNE_VALUE_ERROR 6
-#define TUNE_SERVO_ERROR 7
-
 #define NOTE_SILENCE 0
+
+using pitch_t    = unsigned int;
+using Note       = PatternItem<pitch_t>;
+using Tune       = Pattern<pitch_t>;
+using SimpleTune = SimplePattern<pitch_t>;
+
+const Note TUNE_TEST[] = { { 250, 110 }, { 250, 220 }, { 125, NOTE_SILENCE },
+    { 125, 392 }, { 125, NOTE_SILENCE }, { 125, 294 }, { 2000, NOTE_SILENCE },
+    Note::END };
+
+const Note TUNE_METRO[]
+    = { { 500, NOTE_FS4 }, { 500, NOTE_B4 }, { 800, NOTE_FS5 }, Note::END };
+
+const Note TUNE_CONNECTED[]
+    = { { 75, NOTE_C4 }, { 75, NOTE_G4 }, { 75, NOTE_C5 }, { 75, NOTE_D4 },
+          { 75, NOTE_A4 }, { 75, NOTE_D5 }, Note::END };
+
+const Note TUNE_DISCONNECTED[]
+    = { { 200, NOTE_C3 }, { 200, NOTE_FS2 }, Note::END };
+
+const Note TUNE_PIN_ERROR[] = { { 150, NOTE_D4 }, { 150, NOTE_D3 },
+    { 150, NOTE_D4 }, { 150, NOTE_D3 }, { 2000, NOTE_SILENCE }, Note::END };
+
+const Note TUNE_SPARE[] = { { 100, NOTE_D3 }, { 50, NOTE_SILENCE },
+    { 100, NOTE_D3 }, { 50, NOTE_SILENCE }, { 100, NOTE_D3 },
+    { 50, NOTE_SILENCE }, { 100, NOTE_A3 }, { 2000, NOTE_SILENCE }, Note::END };
+
+const Note TUNE_VALUE_ERROR[] = { { 150, NOTE_D3 }, { 150, NOTE_D4 },
+    { 150, NOTE_A3 }, { 2000, NOTE_SILENCE }, Note::END };
+
+const Note TUNE_SERVO_ERROR[] = { { 100, NOTE_D4 }, { 50, NOTE_SILENCE },
+    { 150, NOTE_D4 }, { 150, NOTE_D3 }, { 150, NOTE_A3 },
+    { 2000, NOTE_SILENCE }, Note::END };
 
 class CrcBuzz {
 public:
     CrcBuzz()  = default;
     ~CrcBuzz() = default;
 
-    void Initialize(unsigned char pin, bool start_tune);
+    void Initialize(unsigned char pin);
 
     void Update(unsigned int delta);
 
-    void StartTune(unsigned char tune, bool repeat);
+    void StartTune(Tune* tune);
 
 private:
-    struct Note {
-        unsigned int pitch;
-        int dur;
-    };
-
-    Note* GetNote(unsigned char tune);
-
     void SetTone(unsigned int pitch);
 
-    long GetDurationMicros();
-
-    unsigned char _currentTune = NO_TUNE;
-
-    int _currentIndex;
-
-    bool _repeatTune;
-
-    long _currentCount;
+    Tune* _currentTune = NULL;
 
     unsigned char _buzzPin;
-
-    Note _sentinelNote = { 0, -1 };
-
-    // Tune 0
-    Note _tune_test[8] = { { 110, 250 }, { 220, 250 }, { NOTE_SILENCE, 125 },
-        { 392, 125 }, { NOTE_SILENCE, 125 }, { 294, 125 },
-        { NOTE_SILENCE, 2000 }, _sentinelNote };
-
-    // Tune 1
-    Note _tune_metro[4] = { { NOTE_FS4, 500 }, { NOTE_B4, 500 },
-        { NOTE_FS5, 800 }, _sentinelNote };
-
-    // Tune 2
-    Note _tune_connected[7]
-        = { { NOTE_C4, 75 }, { NOTE_G4, 75 }, { NOTE_C5, 75 }, { NOTE_D4, 75 },
-              { NOTE_A4, 75 }, { NOTE_D5, 75 }, _sentinelNote };
-
-    // Tune 3
-    Note _tune_disconnected[3]
-        = { { NOTE_C3, 200 }, { NOTE_FS2, 200 }, _sentinelNote };
-
-    // Tune 4
-    Note _tune_pinError[6]
-        = { { NOTE_D4, 150 }, { NOTE_D3, 150 }, { NOTE_D4, 150 },
-              { NOTE_D3, 150 }, { NOTE_SILENCE, 2000 }, _sentinelNote };
-
-    // Tune 5
-    Note _tune_bindingError[9]
-        = { { NOTE_D3, 100 }, { NOTE_SILENCE, 50 }, { NOTE_D3, 100 },
-              { NOTE_SILENCE, 50 }, { NOTE_D3, 100 }, { NOTE_SILENCE, 50 },
-              { NOTE_A3, 100 }, { NOTE_SILENCE, 2000 }, _sentinelNote };
-
-    // Tune 6
-    Note _tune_valueError[5] = { { NOTE_D3, 150 }, { NOTE_D4, 150 },
-        { NOTE_A3, 150 }, { NOTE_SILENCE, 2000 }, _sentinelNote };
-
-    // Tune 7
-    Note _tune_servoError[7] = { { NOTE_D4, 100 }, { NOTE_SILENCE, 50 },
-        { NOTE_D4, 150 }, { NOTE_D3, 150 }, { NOTE_A3, 150 },
-        { NOTE_SILENCE, 2000 }, _sentinelNote };
 };
 }
 #endif

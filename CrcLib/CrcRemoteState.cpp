@@ -6,35 +6,35 @@ uint8_t RemoteState::serialize_update(
 {
     uint8_t len = 1;
     if (prev.gachetteG != gachetteG || keyframe) {
-        buf[0] |= 1;
+        buf[0] |= 0x01;
         buf[len++] = gachetteG;
     }
     if (prev.gachetteD != gachetteD || keyframe) {
-        buf[0] |= 2;
+        buf[0] |= 0x02;
         buf[len++] = gachetteD;
     }
     if (prev.joystick1X != joystick1X || prev.joystick1Y != joystick1Y
         || keyframe) {
-        buf[0] |= 4;
+        buf[0] |= 0x04;
         buf[len++] = joystick1X;
         buf[len++] = joystick1Y;
     }
     if (prev.joystick2X != joystick2X || prev.joystick2Y != joystick2Y
         || keyframe) {
-        buf[0] |= 8;
+        buf[0] |= 0x08;
         buf[len++] = joystick2X;
         buf[len++] = joystick2Y;
     }
     uint8_t prev_but1 = prev.serialize_button_bank1();
     uint8_t but1      = serialize_button_bank1();
     if (prev_but1 != but1 || keyframe) {
-        buf[0] |= 16;
+        buf[0] |= 0x10;
         buf[len++] = but1;
     }
     uint8_t prev_but2 = prev.serialize_button_bank2();
     uint8_t but2      = serialize_button_bank2();
     if (prev_but2 != but2 || keyframe) {
-        buf[0] |= 32;
+        buf[0] |= 0x20;
         buf[len++] = but2;
     }
     return len;
@@ -70,21 +70,21 @@ uint8_t RemoteState::serialize_button_bank2()
 void RemoteState::deserialize_update(uint8_t* payload)
 {
     uint8_t len = 0;
-    if (payload[0] & 1) {
+    if (payload[0] & 0x01) {
         gachetteG = payload[++len];
     }
-    if (payload[0] & 2) {
+    if (payload[0] & 0x02) {
         gachetteD = payload[++len];
     }
-    if (payload[0] & 4) {
+    if (payload[0] & 0x04) {
         joystick1X = payload[++len];
         joystick1Y = payload[++len];
     }
-    if (payload[0] & 8) {
+    if (payload[0] & 0x08) {
         joystick2X = payload[++len];
         joystick2Y = payload[++len];
     }
-    if (payload[0] & 16) {
+    if (payload[0] & 0x10) {
         uint8_t b  = payload[++len];
         arrowRight = b & 1;
         arrowUp    = (b >> 1) & 1;
@@ -95,7 +95,7 @@ void RemoteState::deserialize_update(uint8_t* payload)
         colorLeft  = (b >> 6) & 1;
         colorDown  = (b >> 7) & 1;
     }
-    if (payload[0] & 32) {
+    if (payload[0] & 0x20) {
         uint8_t b = payload[++len];
         L1        = b & 1;
         R1        = (b >> 1) & 1;

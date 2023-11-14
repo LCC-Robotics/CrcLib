@@ -1,86 +1,36 @@
 #include "CrcBuzz.h"
 
 namespace CrcUtility {
-void CrcBuzz::Initialize(unsigned char pin, bool start_tune)
+void CrcBuzz::Initialize(unsigned char pin)
 {
     _buzzPin = pin;
     pinMode(_buzzPin, OUTPUT);
-
-    if (start_tune) {
-        StartTune(TUNE_METRO, false);
-    }
 }
 
-void CrcBuzz::StartTune(unsigned char tune, bool repeat)
+void CrcBuzz::StartTune(Tune* tune)
 {
-    _currentTune  = tune;
-    _repeatTune   = repeat;
-    _currentCount = 0;
-    _currentIndex = 0;
+    _currentTune = tune;
 
-    SetTone(GetNote(_currentIndex)->pitch);
+    Update(0);
 }
 
 void CrcBuzz::Update(unsigned int delta)
 {
-    if (_currentTune == NO_TUNE) {
+    if (_currentTune == NULL)
         return;
-    }
 
-    _currentCount += delta;
-
-    long dur = GetDurationMicros();
-
-    if (_currentCount > dur) {
-        _currentCount -= dur;
-        _currentIndex++;
-
-        // Check if we've reached the sentinel value
-        if (GetNote(_currentTune)->dur < 0) {
-            if (_repeatTune) {
-                _currentIndex = 0;
-            } else {
-                _currentTune = NO_TUNE;
-                SetTone(NOTE_SILENCE);
-                return;
-            }
-        }
-
-        SetTone(GetNote(_currentTune)->pitch);
-    }
+    if (_currentTune->Update(
+            delta,
+            [](pitch_t note, void* self) { ((CrcBuzz*)self)->SetTone(note); },
+            this))
+        _currentTune = NULL;
 }
 
 void CrcBuzz::SetTone(unsigned int pitch)
 {
-    noTone(_buzzPin);
-    if (pitch != NOTE_SILENCE)
-        tone(_buzzPin, pitch);
-}
-
-struct CrcBuzz::Note* CrcBuzz::GetNote(unsigned char tune)
-{
-    if (tune == TUNE_TEST)
-        return &(_tune_test[_currentIndex]);
-    else if (tune == TUNE_METRO)
-        return &(_tune_metro[_currentIndex]);
-    else if (tune == TUNE_CONNECTED)
-        return &(_tune_connected[_currentIndex]);
-    else if (tune == TUNE_DISCONNECTED)
-        return &(_tune_disconnected[_currentIndex]);
-    else if (tune == TUNE_PIN_ERROR)
-        return &(_tune_pinError[_currentIndex]);
-    else if (tune == TUNE_SPARE)
-        return &(_tune_bindingError[_currentIndex]);
-    else if (tune == TUNE_VALUE_ERROR)
-        return &(_tune_valueError[_currentIndex]);
-    else if (tune == TUNE_SERVO_ERROR)
-        return &(_tune_servoError[_currentIndex]);
+    if (pitch == NOTE_SILENCE)
+        noTone(_buzzPin);
     else
-        return nullptr;
-}
-
-long CrcBuzz::GetDurationMicros()
-{
-    return (static_cast<long>(GetNote(_currentTune)->dur)) * 1000;
+        tone(_buzzPin, pitch);
 }
 }

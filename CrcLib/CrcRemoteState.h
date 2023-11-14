@@ -17,13 +17,13 @@ private:
     uint8_t serialize_button_bank2();
 
 public:
-    uint8_t joystick1X;
-    uint8_t joystick1Y;
-    uint8_t joystick2X;
-    uint8_t joystick2Y;
+    int8_t joystick1X;
+    int8_t joystick1Y;
+    int8_t joystick2X;
+    int8_t joystick2Y;
 
-    uint8_t gachetteG;
-    uint8_t gachetteD;
+    int8_t gachetteG;
+    int8_t gachetteD;
 
     bool arrowRight;
     bool arrowUp;

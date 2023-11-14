@@ -59,16 +59,16 @@ void CrcLib::Update()
     if (!_crcXbee.IsCommValid() && _commsLastConnected) {
         // The communication was previously active but now is not connected
         _commsLastConnected = false;
-        _crcNeo.StartPattern(PATTERN_DISCONNECTED, false);
+        ShowColorPattern(CrcUtility::PATTERN_DISCONNECTED, false);
         if (_buzzer) {
-            _crcBuzz.StartTune(TUNE_DISCONNECTED, false);
+            PlayTune(CrcUtility::TUNE_DISCONNECTED, false);
         }
     } else if (_crcXbee.IsCommValid() && !_commsLastConnected) {
         // The communication was not active but now it is
         _commsLastConnected = true;
-        _crcNeo.StartPattern(PATTERN_CONNECTED, false);
+        ShowColorPattern(CrcUtility::PATTERN_CONNECTED, false);
         if (_buzzer) {
-            _crcBuzz.StartTune(TUNE_CONNECTED, false);
+            PlayTune(CrcUtility::TUNE_CONNECTED, false);
         }
     }
 
@@ -257,10 +257,7 @@ void CrcLib::MoveHolonomic(ANALOG forwardChannel,
         frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor);
 }
 
-void CrcLib::Initialize()
-{
-    Initialize(true);
-}
+void CrcLib::Initialize() { Initialize(true); }
 
 void CrcLib::Initialize(bool buzzer)
 {
@@ -268,7 +265,7 @@ void CrcLib::Initialize(bool buzzer)
     _crcNeo.Initialize();
 
     // Setup buzzer
-    _crcBuzz.Initialize(CRC_BUZZER, buzzer);
+    _crcBuzz.Initialize(CRC_BUZZER);
 
     // Enable or disable buzzer
     _buzzer = buzzer;
@@ -277,6 +274,11 @@ void CrcLib::Initialize(bool buzzer)
 
     // Setup xBee communication
     _crcXbee.Initialize(Serial2);
+
+    // Start metro tune/pattern
+    ShowColorPattern(CrcUtility::PATTERN_STARTUP, false);
+    if (buzzer)
+        PlayTune(CrcUtility::TUNE_METRO, false);
 }
 
 void CrcLib::SetupPins()
@@ -364,8 +366,8 @@ void CrcLib::SetPwmOutput(unsigned char pin, char value)
     int mapped_value = (servo->minPulseWidth + servo->maxPulseWidth) / 2;
 
     if (value
-        != 0) //Évite un potentiel lag si le joystick est au neutre, p-t que ça
-              // va se transformer en genre 1501 et envoyer un faible signal...
+        != 0) // Évite un potentiel lag si le joystick est au neutre, p-t que ça
+              //  va se transformer en genre 1501 et envoyer un faible signal...
         mapped_value = map(value * servo->reverse, -128, 127,
             servo->minPulseWidth, servo->maxPulseWidth);
 
@@ -467,11 +469,9 @@ float CrcLib::GetBatteryVoltage(float correction)
     return analogRead(CRC_VBATT) * (5 * 4 / 1023.0) * correction;
 }
 
-void CrcLib::StopEverythingFromError(unsigned char errorCode)
+void CrcLib::StopEverythingFromError(
+    const Note notes[], const ColorDuration colors[])
 {
-    // Debug
-    Serial.println("Stopped from error:");
-    Serial.println(errorCode);
 
     // Stop all current output, since we don't want to freeze things while
     // motors are still running and whatnot
@@ -480,10 +480,8 @@ void CrcLib::StopEverythingFromError(unsigned char errorCode)
     // Depending on the error code, display (LED / buzzer) the appropriate
     // pattern
     digitalWrite(CRC_LED_FAIL, HIGH);
-    _crcNeo.StartPattern(GetErrorLightPattern(errorCode), true);
-    if (_buzzer) {
-        _crcBuzz.StartTune(GetErrorTune(errorCode), true);
-    }
+    ShowColorPattern(colors, true);
+    PlayTune(notes, true);
 
     // Wait indefinitely (maybe check certain important things or update LED
     // flashes, but never leave this function once we've entered)
@@ -495,43 +493,54 @@ void CrcLib::StopEverythingFromError(unsigned char errorCode)
     }
 }
 
-unsigned char CrcLib::GetErrorTune(unsigned char errorCode)
+void CrcLib::StopEverythingFromError(unsigned char errorCode)
+{
+    // Debug
+    Serial.println("Stopped from error:");
+    Serial.println(errorCode);
+
+    StopEverythingFromError(_buzzer ? GetErrorTune(errorCode) : &Note::END,
+        GetErrorLightPattern(errorCode));
+}
+
+const CrcUtility::Note* CrcLib::GetErrorTune(unsigned char errorCode)
 {
     if (errorCode == ERROR_UNSAFE_DIGITAL_PIN
         || errorCode == ERROR_UNSAFE_ANALOG_PIN
         || errorCode == ERROR_UNSAFE_PWM_PIN
         || errorCode == ERROR_UNSAFE_PWM_DIG_PIN) {
-        return TUNE_PIN_ERROR;
+        return CrcUtility::TUNE_PIN_ERROR;
     } else if (false) {
-        return TUNE_SPARE;
+        return CrcUtility::TUNE_SPARE;
     } else if (errorCode == ERROR_INCORRECT_DIGITAL_VALUE) {
-        return TUNE_VALUE_ERROR;
+        return CrcUtility::TUNE_VALUE_ERROR;
     } else if (errorCode == ERROR_SERVO_ALREADY_INITIALIZED
         || errorCode == ERROR_SERVO_NOT_INITIALIZED
         || errorCode == ERROR_INCORRECT_SERVO_PULSEWIDTH) {
-        return TUNE_SERVO_ERROR;
+        return CrcUtility::TUNE_SERVO_ERROR;
     } else {
-        return TUNE_TEST;
+        return CrcUtility::TUNE_TEST;
     }
 }
 
-unsigned char CrcLib::GetErrorLightPattern(unsigned char errorCode)
+const CrcUtility::ColorDuration* CrcLib::GetErrorLightPattern(
+    unsigned char errorCode)
 {
     if (errorCode == ERROR_SPARE10 || errorCode == ERROR_UNSAFE_DIGITAL_PIN
         || errorCode == ERROR_SERVO_ALREADY_INITIALIZED) {
-        return PATTERN_ERROR1;
+        return CrcUtility::PATTERN_ERROR1;
     } else if (errorCode == ERROR_SPARE11
         || errorCode == ERROR_UNSAFE_ANALOG_PIN
         || errorCode == ERROR_SERVO_NOT_INITIALIZED) {
-        return PATTERN_ERROR2;
+        return CrcUtility::PATTERN_ERROR2;
     } else if (errorCode == ERROR_UNSAFE_PWM_PIN || errorCode == ERROR_SPARE12
         || errorCode == ERROR_INCORRECT_SERVO_PULSEWIDTH) {
-        return PATTERN_ERROR3;
+        return CrcUtility::PATTERN_ERROR3;
     } else if (errorCode == ERROR_UNSAFE_PWM_DIG_PIN
         || errorCode == ERROR_INCORRECT_DIGITAL_VALUE) {
-        return PATTERN_ERROR4;
+        return CrcUtility::PATTERN_ERROR4;
     } else {
-        return PATTERN_TEST;
+        return CrcUtility::PATTERN_TEST;
     }
 }
 
@@ -571,7 +580,37 @@ void CrcLib::Timer::Start(uint32_t delay)
     _started = millis();
     _delay   = delay;
 }
-bool CrcLib::Timer::IsFinished() { return ((uint32_t)millis()) - _started > _delay; }
+bool CrcLib::Timer::IsFinished()
+{
+    return ((uint32_t)millis()) - _started > _delay && delay != 0;
+}
+bool CrcLib::Timer::IsWaiting() { return _delay != 0 && !IsFinished(); }
 void CrcLib::Timer::Next() { _started += _delay; }
+
+void CrcLib::PlayTune(const Note notes[], bool repeat)
+{
+    static SimpleTune static_tune(&CrcUtility::Note::END, false);
+
+    static_tune = SimpleTune(notes, repeat);
+    PlayTune(&static_tune);
+}
+
+void CrcLib::PlayTune(Tune* tune) { _crcBuzz.StartTune(tune); }
+
+void CrcLib::SetColor(const Color color) { _crcNeo.SetColor(color); }
+
+void CrcLib::ShowColorPattern(const ColorDuration pattern[], bool repeat)
+{
+    static SimpleColorPattern static_pattern(
+        &CrcUtility::ColorDuration::END, false);
+
+    static_pattern = SimpleColorPattern(pattern, repeat);
+    ShowColorPattern(&static_pattern);
+}
+
+void CrcLib::ShowColorPattern(ColorPattern* pattern)
+{
+    _crcNeo.StartPattern(pattern);
+}
 
 #endif /* Black box */
