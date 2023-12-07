@@ -104,31 +104,31 @@ using SimpleTune = SimplePattern<pitch_t>;
 
 const Note TUNE_TEST[] = { { 250, 110 }, { 250, 220 }, { 125, NOTE_SILENCE },
     { 125, 392 }, { 125, NOTE_SILENCE }, { 125, 294 }, { 2000, NOTE_SILENCE },
-    Note::END };
+    Note::END() };
 
 const Note TUNE_METRO[]
-    = { { 500, NOTE_FS4 }, { 500, NOTE_B4 }, { 800, NOTE_FS5 }, Note::END };
+    = { { 500, NOTE_FS4 }, { 500, NOTE_B4 }, { 800, NOTE_FS5 }, Note::END() };
 
 const Note TUNE_CONNECTED[]
     = { { 75, NOTE_C4 }, { 75, NOTE_G4 }, { 75, NOTE_C5 }, { 75, NOTE_D4 },
-          { 75, NOTE_A4 }, { 75, NOTE_D5 }, Note::END };
+          { 75, NOTE_A4 }, { 75, NOTE_D5 }, Note::END() };
 
 const Note TUNE_DISCONNECTED[]
-    = { { 200, NOTE_C3 }, { 200, NOTE_FS2 }, Note::END };
+    = { { 200, NOTE_C3 }, { 200, NOTE_FS2 }, Note::END() };
 
 const Note TUNE_PIN_ERROR[] = { { 150, NOTE_D4 }, { 150, NOTE_D3 },
-    { 150, NOTE_D4 }, { 150, NOTE_D3 }, { 2000, NOTE_SILENCE }, Note::END };
+    { 150, NOTE_D4 }, { 150, NOTE_D3 }, { 2000, NOTE_SILENCE }, Note::END() };
 
 const Note TUNE_SPARE[] = { { 100, NOTE_D3 }, { 50, NOTE_SILENCE },
     { 100, NOTE_D3 }, { 50, NOTE_SILENCE }, { 100, NOTE_D3 },
-    { 50, NOTE_SILENCE }, { 100, NOTE_A3 }, { 2000, NOTE_SILENCE }, Note::END };
+    { 50, NOTE_SILENCE }, { 100, NOTE_A3 }, { 2000, NOTE_SILENCE }, Note::END() };
 
 const Note TUNE_VALUE_ERROR[] = { { 150, NOTE_D3 }, { 150, NOTE_D4 },
-    { 150, NOTE_A3 }, { 2000, NOTE_SILENCE }, Note::END };
+    { 150, NOTE_A3 }, { 2000, NOTE_SILENCE }, Note::END() };
 
 const Note TUNE_SERVO_ERROR[] = { { 100, NOTE_D4 }, { 50, NOTE_SILENCE },
     { 150, NOTE_D4 }, { 150, NOTE_D3 }, { 150, NOTE_A3 },
-    { 2000, NOTE_SILENCE }, Note::END };
+    { 2000, NOTE_SILENCE }, Note::END() };
 
 class CrcBuzz {
 public:

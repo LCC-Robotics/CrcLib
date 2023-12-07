@@ -126,8 +126,8 @@ public:
     class Timer {
     public:
         void Start(uint32_t delay);
-        bool IsFinished();
-        bool IsWaiting();
+        bool IsFinished() const;
+        bool IsWaiting() const;
         void Next();
 
     private:
@@ -309,8 +309,8 @@ public:
 
     /** Stops all stuff that's currently happening and displays some form of
      * error output. */
-    static void StopEverythingFromError(
-        const Note notes[], const ColorDuration colors[]);
+    static void StopEverythingFromError(const Note notes[], const ColorDuration colors[]);
+    static void StopEverythingFromError(const ColorDuration colors[]);
 
     // Play a tune on the CrcDuino buzzer
     static void PlayTune(const Note notes[], bool repeat);

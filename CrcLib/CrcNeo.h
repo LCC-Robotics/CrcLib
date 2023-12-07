@@ -55,41 +55,41 @@ const ColorDuration PATTERN_TEST[] = { { 250, RED_LOW }, { 250, NO_COLOR },
     { 750, GREEN_LOW }, { 250, NO_COLOR }, { 750, GREEN_LOW },
     { 250, NO_COLOR }, { 750, GREEN_LOW }, { 500, NO_COLOR }, { 250, BLUE_LOW },
     { 250, NO_COLOR }, { 250, BLUE_LOW }, { 250, NO_COLOR }, { 250, BLUE_LOW },
-    { 500, NO_COLOR }, ColorDuration::END };
+    { 500, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_FASTCHRISTMAS[]
-    = { { 100, RED_LOW }, { 100, GREEN_LOW }, ColorDuration::END };
+    = { { 100, RED_LOW }, { 100, GREEN_LOW }, ColorDuration::END() };
 
 const ColorDuration PATTERN_BLINDINGDANGER[] = { { 200, YELLOW_HIGH },
     { 500, NO_COLOR }, { 100, YELLOW_HIGH }, { 100, NO_COLOR },
-    { 100, YELLOW_HIGH }, { 500, NO_COLOR }, ColorDuration::END };
+    { 100, YELLOW_HIGH }, { 500, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_STARTUP[]
     = { { 500, RED_HIGH }, { 500, GREEN_HIGH }, { 500, BLUE_HIGH },
           { 500, YELLOW_HIGH }, { 500, CYAN_HIGH }, { 500, MAGENTA_HIGH },
-          { 500, WHITE_HIGH }, ColorDuration::END };
+          { 500, WHITE_HIGH }, ColorDuration::END() };
 
 const ColorDuration PATTERN_CONNECTED[] = { { 100, CYAN_HIGH },
     { 100, NO_COLOR }, { 100, CYAN_HIGH }, { 100, NO_COLOR },
-    { 100, CYAN_HIGH }, { 500, NO_COLOR }, ColorDuration::END };
+    { 100, CYAN_HIGH }, { 500, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_DISCONNECTED[] = { { 100, ORANGE_HIGH },
     { 100, NO_COLOR }, { 100, ORANGE_HIGH }, { 100, NO_COLOR },
-    { 100, ORANGE_HIGH }, { 500, NO_COLOR }, ColorDuration::END };
+    { 100, ORANGE_HIGH }, { 500, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_ERROR1[] = { { 150, RED_LOW }, { 150, NO_COLOR },
     { 150, RED_LOW }, { 150, NO_COLOR }, { 400, YELLOW_LOW },
-    { 2000, NO_COLOR }, ColorDuration::END };
+    { 2000, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_ERROR2[] = { { 150, MAGENTA_LOW },
     { 150, NO_COLOR }, { 150, CYAN_LOW }, { 150, NO_COLOR },
-    { 150, MAGENTA_LOW }, { 2000, NO_COLOR }, ColorDuration::END };
+    { 150, MAGENTA_LOW }, { 2000, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_ERROR3[] = { { 400, CYAN_LOW }, { 150, NO_COLOR },
-    { 400, RED_LOW }, { 2000, NO_COLOR }, ColorDuration::END };
+    { 400, RED_LOW }, { 2000, NO_COLOR }, ColorDuration::END() };
 
 const ColorDuration PATTERN_ERROR4[] = { { 150, YELLOW_LOW }, { 150, NO_COLOR },
-    { 400, MAGENTA_LOW }, { 2000, NO_COLOR }, ColorDuration::END };
+    { 400, MAGENTA_LOW }, { 2000, NO_COLOR }, ColorDuration::END() };
 
 class CrcNeo {
 public:

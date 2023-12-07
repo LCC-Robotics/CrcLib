@@ -1,21 +1,21 @@
 #include "CrcLib.h"
-#if defined(__AVR_ATmega1280__)                                                \
+#if defined(__AVR_ATmega1280__) \
     || defined(__AVR_ATmega2560__) /* Only if on the mega */
 
-unsigned long CrcLib::_lastUpdateTime    = 0;
-unsigned int CrcLib::_deltaTime          = 0;
-unsigned int CrcLib::_hbCountdown        = SCAN_COUNT_HB;
-bool CrcLib::_commsLastConnected         = false;
-bool CrcLib::_buzzer                     = true;
-const unsigned char CrcLib::CRC_LED_NEO  = 32;
-const unsigned char CrcLib::CRC_LED_ST   = 34;
+unsigned long CrcLib::_lastUpdateTime = 0;
+unsigned int CrcLib::_deltaTime = 0;
+unsigned int CrcLib::_hbCountdown = SCAN_COUNT_HB;
+bool CrcLib::_commsLastConnected = false;
+bool CrcLib::_buzzer = true;
+const unsigned char CrcLib::CRC_LED_NEO = 32;
+const unsigned char CrcLib::CRC_LED_ST = 34;
 const unsigned char CrcLib::CRC_LED_FAIL = 39;
-const unsigned char CrcLib::CRC_BUZZER   = 46;
+const unsigned char CrcLib::CRC_BUZZER = 46;
 const unsigned char CrcLib::CRC_TXD_XBEE = 16;
 const unsigned char CrcLib::CRC_RXD_XBEE = 17;
-CrcUtility::CrcNeo CrcLib::_crcNeo       = CrcUtility::CrcNeo(CRC_LED_NEO);
-CrcUtility::CrcXbee CrcLib::_crcXbee     = CrcUtility::CrcXbee();
-CrcUtility::CrcBuzz CrcLib::_crcBuzz     = CrcUtility::CrcBuzz();
+CrcUtility::CrcNeo CrcLib::_crcNeo = CrcUtility::CrcNeo(CRC_LED_NEO);
+CrcUtility::CrcXbee CrcLib::_crcXbee = CrcUtility::CrcXbee();
+CrcUtility::CrcBuzz CrcLib::_crcBuzz = CrcUtility::CrcBuzz();
 
 struct CrcLib::ServoInfo CrcLib::_servos[12]
     = { { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
@@ -31,7 +31,7 @@ unsigned char CrcLib::_pwmPins[12]
 
 CrcLib::CrcLib()
 {
-    _lastUpdateTime     = 0;
+    _lastUpdateTime = 0;
     _commsLastConnected = false;
 }
 
@@ -113,7 +113,7 @@ void CrcLib::UpdateTime()
     } else {
         // This is the first update
         _lastUpdateTime = micros();
-        _deltaTime      = 0;
+        _deltaTime = 0;
     }
 }
 
@@ -174,8 +174,8 @@ void CrcLib::MoveArcade(int8_t forwardChannel,
     unsigned char leftMotor,
     unsigned char rightMotor)
 {
-    int8_t left  = constrain(forwardChannel - yawChannel, -128,
-         127); // Determines the power of the left wheels
+    int8_t left = constrain(forwardChannel - yawChannel, -128,
+        127); // Determines the power of the left wheels
     int8_t right = constrain(forwardChannel + yawChannel, -128,
         127); // Determines the power of the right wheels
 
@@ -199,8 +199,8 @@ void CrcLib::MoveArcade(int8_t forwardChannel,
     unsigned char frontRightMotor,
     unsigned char backRightMotor)
 {
-    int8_t left  = constrain(forwardChannel - yawChannel, -128,
-         127); // Determines the power of the left wheels
+    int8_t left = constrain(forwardChannel - yawChannel, -128,
+        127); // Determines the power of the left wheels
     int8_t right = constrain(forwardChannel + yawChannel, -128,
         127); // Determines the power of the right wheels
 
@@ -229,14 +229,14 @@ void CrcLib::MoveHolonomic(int8_t forwardChannel,
     unsigned char frontRightMotor,
     unsigned char backRightMotor)
 {
-    int8_t frontLeft  = constrain(forwardChannel - yawChannel - strafeChannel,
-         -128, 127); // Determines the power of the front left wheel
-    int8_t backLeft   = constrain(forwardChannel - yawChannel + strafeChannel,
-          -128, 127); // Determines the power of the front left wheel
+    int8_t frontLeft = constrain(forwardChannel - yawChannel - strafeChannel,
+        -128, 127); // Determines the power of the front left wheel
+    int8_t backLeft = constrain(forwardChannel - yawChannel + strafeChannel,
+        -128, 127); // Determines the power of the front left wheel
     int8_t frontRight = constrain(forwardChannel + yawChannel + strafeChannel,
         -128, 127); // Determines the power of the front left wheel
-    int8_t backRight  = constrain(forwardChannel + yawChannel - strafeChannel,
-         -128, 127); // Determines the power of the right wheels
+    int8_t backRight = constrain(forwardChannel + yawChannel - strafeChannel,
+        -128, 127); // Determines the power of the right wheels
 
     SetPwmOutput(frontLeftMotor, frontLeft);
     SetPwmOutput(backLeftMotor, backLeft);
@@ -341,14 +341,23 @@ void CrcLib::SetDigitalOutput(unsigned char pin, unsigned char value)
 
 bool CrcLib::IsSafeDigitalPin(unsigned char pin)
 {
-    if (pin == CRC_DIG_1 || pin == CRC_DIG_2 || pin == CRC_DIG_3
-        || pin == CRC_DIG_4 || pin == CRC_DIG_5 || pin == CRC_DIG_6
-        || pin == CRC_DIG_7 || pin == CRC_DIG_8 || pin == CRC_DIG_9
-        || pin == CRC_DIG_10 || pin == CRC_DIG_11 || pin == CRC_DIG_12) {
+    switch (pin) {
+    case CRC_DIG_1:
+    case CRC_DIG_2:
+    case CRC_DIG_3:
+    case CRC_DIG_4:
+    case CRC_DIG_5:
+    case CRC_DIG_6:
+    case CRC_DIG_7:
+    case CRC_DIG_8:
+    case CRC_DIG_9:
+    case CRC_DIG_10:
+    case CRC_DIG_11:
+    case CRC_DIG_12:
         return true;
+    default:
+        return false;
     }
-
-    return false;
 }
 
 void CrcLib::SetPwmOutput(unsigned char pin, char value)
@@ -411,7 +420,7 @@ void CrcLib::InitializePwmOutput(
     servo->servo->attach(pin, minPulseWidth, maxPulseWidth);
     servo->minPulseWidth = minPulseWidth;
     servo->maxPulseWidth = maxPulseWidth;
-    servo->reverse       = reverse ? -1 : 1;
+    servo->reverse = reverse ? -1 : 1;
 }
 
 int CrcLib::PinToServoIndex(unsigned char pin)
@@ -435,10 +444,23 @@ int CrcLib::PinToServoIndex(unsigned char pin)
 
 bool CrcLib::IsSafePwmPin(unsigned char pin)
 {
-    return (pin == CRC_PWM_1 || pin == CRC_PWM_2 || pin == CRC_PWM_3
-        || pin == CRC_PWM_4 || pin == CRC_PWM_5 || pin == CRC_PWM_6
-        || pin == CRC_PWM_7 || pin == CRC_PWM_8 || pin == CRC_PWM_9
-        || pin == CRC_PWM_10 || pin == CRC_PWM_11 || pin == CRC_PWM_12);
+    switch (pin) {
+    case CRC_PWM_1:
+    case CRC_PWM_2:
+    case CRC_PWM_3:
+    case CRC_PWM_4:
+    case CRC_PWM_5:
+    case CRC_PWM_6:
+    case CRC_PWM_7:
+    case CRC_PWM_8:
+    case CRC_PWM_9:
+    case CRC_PWM_10:
+    case CRC_PWM_11:
+    case CRC_PWM_12:
+        return true;
+    default:
+        return false;
+    }
 }
 
 unsigned int CrcLib::GetAnalogInput(unsigned char pin)
@@ -451,12 +473,15 @@ unsigned int CrcLib::GetAnalogInput(unsigned char pin)
 
 bool CrcLib::IsSafeAnalogPin(unsigned char pin)
 {
-    if (pin == CRC_ANA_1 || pin == CRC_ANA_2 || pin == CRC_ANA_3
-        || pin == CRC_ANA_4) {
+    switch (pin) {
+    case CRC_ANA_1:
+    case CRC_ANA_2:
+    case CRC_ANA_3:
+    case CRC_ANA_4:
         return true;
+    default:
+        return false;
     }
-
-    return false;
 }
 
 /** Read battery voltage. */
@@ -469,8 +494,12 @@ float CrcLib::GetBatteryVoltage(float correction)
     return analogRead(CRC_VBATT) * (5 * 4 / 1023.0) * correction;
 }
 
-void CrcLib::StopEverythingFromError(
-    const Note notes[], const ColorDuration colors[])
+inline void CrcLib::StopEverythingFromError(const ColorDuration colors[])
+{
+    CrcLib::StopEverythingFromError(nullptr, colors);
+}
+
+void CrcLib::StopEverythingFromError(const Note notes[], const ColorDuration colors[])
 {
 
     // Stop all current output, since we don't want to freeze things while
@@ -481,7 +510,9 @@ void CrcLib::StopEverythingFromError(
     // pattern
     digitalWrite(CRC_LED_FAIL, HIGH);
     ShowColorPattern(colors, true);
-    PlayTune(notes, true);
+
+    if (notes != nullptr)
+        PlayTune(notes, true);
 
     // Wait indefinitely (maybe check certain important things or update LED
     // flashes, but never leave this function once we've entered)
@@ -499,26 +530,30 @@ void CrcLib::StopEverythingFromError(unsigned char errorCode)
     Serial.println("Stopped from error:");
     Serial.println(errorCode);
 
-    StopEverythingFromError(_buzzer ? GetErrorTune(errorCode) : &Note::END,
-        GetErrorLightPattern(errorCode));
+    if (_buzzer) {
+        StopEverythingFromError(GetErrorTune(errorCode), GetErrorLightPattern(errorCode));
+    } else {
+        StopEverythingFromError(GetErrorLightPattern(errorCode));
+    }
 }
 
 const CrcUtility::Note* CrcLib::GetErrorTune(unsigned char errorCode)
 {
-    if (errorCode == ERROR_UNSAFE_DIGITAL_PIN
-        || errorCode == ERROR_UNSAFE_ANALOG_PIN
-        || errorCode == ERROR_UNSAFE_PWM_PIN
-        || errorCode == ERROR_UNSAFE_PWM_DIG_PIN) {
+    switch (errorCode) {
+    case ERROR_UNSAFE_DIGITAL_PIN:
+    case ERROR_UNSAFE_ANALOG_PIN:
+    case ERROR_UNSAFE_PWM_PIN:
+    case ERROR_UNSAFE_PWM_DIG_PIN:
         return CrcUtility::TUNE_PIN_ERROR;
-    } else if (false) {
+    case false:
         return CrcUtility::TUNE_SPARE;
-    } else if (errorCode == ERROR_INCORRECT_DIGITAL_VALUE) {
+    case ERROR_INCORRECT_DIGITAL_VALUE:
         return CrcUtility::TUNE_VALUE_ERROR;
-    } else if (errorCode == ERROR_SERVO_ALREADY_INITIALIZED
-        || errorCode == ERROR_SERVO_NOT_INITIALIZED
-        || errorCode == ERROR_INCORRECT_SERVO_PULSEWIDTH) {
+    case ERROR_SERVO_ALREADY_INITIALIZED:
+    case ERROR_SERVO_NOT_INITIALIZED:
+    case ERROR_INCORRECT_SERVO_PULSEWIDTH:
         return CrcUtility::TUNE_SERVO_ERROR;
-    } else {
+    default:
         return CrcUtility::TUNE_TEST;
     }
 }
@@ -526,20 +561,23 @@ const CrcUtility::Note* CrcLib::GetErrorTune(unsigned char errorCode)
 const CrcUtility::ColorDuration* CrcLib::GetErrorLightPattern(
     unsigned char errorCode)
 {
-    if (errorCode == ERROR_SPARE10 || errorCode == ERROR_UNSAFE_DIGITAL_PIN
-        || errorCode == ERROR_SERVO_ALREADY_INITIALIZED) {
+    switch (errorCode) {
+    case ERROR_SPARE10:
+    case ERROR_UNSAFE_DIGITAL_PIN:
+    case ERROR_SERVO_ALREADY_INITIALIZED:
         return CrcUtility::PATTERN_ERROR1;
-    } else if (errorCode == ERROR_SPARE11
-        || errorCode == ERROR_UNSAFE_ANALOG_PIN
-        || errorCode == ERROR_SERVO_NOT_INITIALIZED) {
+    case ERROR_SPARE11:
+    case ERROR_UNSAFE_ANALOG_PIN:
+    case ERROR_SERVO_NOT_INITIALIZED:
         return CrcUtility::PATTERN_ERROR2;
-    } else if (errorCode == ERROR_UNSAFE_PWM_PIN || errorCode == ERROR_SPARE12
-        || errorCode == ERROR_INCORRECT_SERVO_PULSEWIDTH) {
+    case ERROR_UNSAFE_PWM_PIN:
+    case ERROR_SPARE12:
+    case ERROR_INCORRECT_SERVO_PULSEWIDTH:
         return CrcUtility::PATTERN_ERROR3;
-    } else if (errorCode == ERROR_UNSAFE_PWM_DIG_PIN
-        || errorCode == ERROR_INCORRECT_DIGITAL_VALUE) {
+    case ERROR_UNSAFE_PWM_DIG_PIN:
+    case ERROR_INCORRECT_DIGITAL_VALUE:
         return CrcUtility::PATTERN_ERROR4;
-    } else {
+    default:
         return CrcUtility::PATTERN_TEST;
     }
 }
@@ -578,18 +616,18 @@ bool CrcLib::IsCommValid() { return _crcXbee.IsCommValid(); }
 void CrcLib::Timer::Start(uint32_t delay)
 {
     _started = millis();
-    _delay   = delay;
+    _delay = delay;
 }
-bool CrcLib::Timer::IsFinished()
+bool CrcLib::Timer::IsFinished() const
 {
-    return ((uint32_t)millis()) - _started > _delay && delay != 0;
+    return ((uint32_t)millis()) - _started > _delay && _delay != 0;
 }
-bool CrcLib::Timer::IsWaiting() { return _delay != 0 && !IsFinished(); }
+bool CrcLib::Timer::IsWaiting() const { return _delay != 0 && !IsFinished(); }
 void CrcLib::Timer::Next() { _started += _delay; }
 
 void CrcLib::PlayTune(const Note notes[], bool repeat)
 {
-    static SimpleTune static_tune(&CrcUtility::Note::END, false);
+    static SimpleTune static_tune;
 
     static_tune = SimpleTune(notes, repeat);
     PlayTune(&static_tune);
@@ -601,8 +639,7 @@ void CrcLib::SetColor(const Color color) { _crcNeo.SetColor(color); }
 
 void CrcLib::ShowColorPattern(const ColorDuration pattern[], bool repeat)
 {
-    static SimpleColorPattern static_pattern(
-        &CrcUtility::ColorDuration::END, false);
+    static SimpleColorPattern static_pattern;
 
     static_pattern = SimpleColorPattern(pattern, repeat);
     ShowColorPattern(&static_pattern);

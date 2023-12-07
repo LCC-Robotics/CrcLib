@@ -6,9 +6,8 @@ template <class T> struct PatternItem {
     int dur;
     T val;
 
-    static constexpr PatternItem<T> END = { -1 };
+    static inline PatternItem<T> END() { return { -1, 0 };};
 };
-template <class T> PatternItem<T> constexpr PatternItem<T>::END;
 
 template <class T> class Pattern {
 public:
