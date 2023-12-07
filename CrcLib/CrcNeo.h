@@ -93,7 +93,7 @@ const ColorDuration PATTERN_ERROR4[] = { { 150, YELLOW_LOW }, { 150, NO_COLOR },
 
 class CrcNeo {
 public:
-    CrcNeo(unsigned char pin)
+    explicit CrcNeo(unsigned char pin)
         : _neoPin(pin)
         , _pixel(Adafruit_NeoPixel(1, pin, NEO_GRB + NEO_KHZ800))
     {
