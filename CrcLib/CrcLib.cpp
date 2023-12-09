@@ -7,7 +7,7 @@ unsigned int CrcLib::_deltaTime = 0;
 unsigned int CrcLib::_hbCountdown = SCAN_COUNT_HB;
 bool CrcLib::_commsLastConnected = false;
 bool CrcLib::_buzzer = true;
-CrcUtility::CrcNeo CrcLib::_crcNeo {CRC_LED_NEO};
+CrcUtility::CrcNeo CrcLib::_crcNeo { CRC_LED_NEO };
 CrcUtility::CrcXbee CrcLib::_crcXbee {};
 CrcUtility::CrcBuzz CrcLib::_crcBuzz {};
 
@@ -370,9 +370,8 @@ void CrcLib::SetPwmOutput(unsigned char pin, char value)
 
     int mapped_value = (servo.minPulseWidth + servo.maxPulseWidth) / 2;
 
-    if (value
-        != 0) // Évite un potentiel lag si le joystick est au neutre, p-t que ça
-              //  va se transformer en genre 1501 et envoyer un faible signal...
+    if (value != 0) // Évite un potentiel lag si le joystick est au neutre, p-t que ça
+                    //  va se transformer en genre 1501 et envoyer un faible signal...
         mapped_value = map(value * servo.reverse, -128, 127,
             servo.minPulseWidth, servo.maxPulseWidth);
 
