@@ -132,6 +132,8 @@ const Note TUNE_SERVO_ERROR[] = { { 100, NOTE_D4 }, { 50, NOTE_SILENCE },
 
 class CrcBuzz {
 public:
+    static constexpr Tune* NO_TUNE = nullptr;
+
     CrcBuzz()  = default;
     ~CrcBuzz() = default;
 
@@ -142,9 +144,9 @@ public:
     void StartTune(Tune* tune);
 
 private:
-    void SetTone(unsigned int pitch);
+    void PlayTone(unsigned int pitch) const;
 
-    Tune* _currentTune = NULL;
+    Tune* _currentTune = NO_TUNE;
 
     unsigned char _buzzPin;
 };

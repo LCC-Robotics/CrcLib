@@ -16,17 +16,17 @@ void CrcBuzz::StartTune(Tune* tune)
 
 void CrcBuzz::Update(unsigned int delta)
 {
-    if (_currentTune == NULL)
+    if (_currentTune == NO_TUNE)
         return;
 
     if (_currentTune->Update(
             delta,
-            [](pitch_t note, void* self) { ((CrcBuzz*)self)->SetTone(note); },
+            [](pitch_t note, void* self) { ((CrcBuzz*)self)->PlayTone(note); },
             this))
-        _currentTune = NULL;
+        _currentTune = NO_TUNE;
 }
 
-void CrcBuzz::SetTone(unsigned int pitch)
+void CrcBuzz::PlayTone(unsigned int pitch) const
 {
     if (pitch == NOTE_SILENCE)
         noTone(_buzzPin);

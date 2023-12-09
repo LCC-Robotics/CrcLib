@@ -93,9 +93,11 @@ const ColorDuration PATTERN_ERROR4[] = { { 150, YELLOW_LOW }, { 150, NO_COLOR },
 
 class CrcNeo {
 public:
+    static constexpr ColorPattern* NO_COLOR_PATTERN = nullptr;
+
     explicit CrcNeo(unsigned char pin)
-        : _neoPin(pin)
-        , _pixel(Adafruit_NeoPixel(1, pin, NEO_GRB + NEO_KHZ800))
+        : _neoPin{pin}
+        , _pixel{1, pin, NEO_GRB + NEO_KHZ800}
     {
     }
     ~CrcNeo() = default;
@@ -109,7 +111,7 @@ public:
     void StartPattern(ColorPattern* pattern);
 
 private:
-    ColorPattern* _currentPattern = NULL;
+    ColorPattern* _currentPattern = NO_COLOR_PATTERN;
 
     unsigned char _neoPin;
 

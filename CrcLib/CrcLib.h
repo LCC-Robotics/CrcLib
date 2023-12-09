@@ -4,7 +4,7 @@
 #include "CrcXbee.h"
 #include <Arduino.h>
 #include <Servo.h>
-#if defined(__AVR_ATmega1280__)                                                \
+#if defined(__AVR_ATmega1280__) \
     || defined(__AVR_ATmega2560__) /* Only on the custom board */
 #include "CrcBuzz.h"
 #include "CrcNeo.h"
@@ -132,7 +132,7 @@ public:
 
     private:
         uint32_t _started = 0;
-        uint32_t _delay   = 0;
+        uint32_t _delay = 0;
     };
 
     /** Default constructor. */
@@ -317,10 +317,10 @@ public:
     static void PlayTune(Tune* tune);
 
     // Display a color on the NeoPixel
-    static void SetColor(const Color color);
+    static void SetColor(Color color);
 
     // Display a light pattern on the NeoPixel
-    static void ShowColorPattern(const ColorDuration colors[], bool repeat);
+    static void ShowColorPattern(const ColorDuration pattern[], bool repeat);
     static void ShowColorPattern(ColorPattern* pattern);
 
 private:
@@ -348,16 +348,16 @@ private:
     // Reset all outputs that were potentially set to 0
     static void StopAllOutput();
 
-    static int PinToServoIndex(unsigned char pin);
+    static constexpr int PinToServoIndex(unsigned char pin);
 
     /** Check if a given pin is an allowed digital pin. */
-    static bool IsSafeDigitalPin(unsigned char pin);
+    static constexpr bool IsSafeDigitalPin(unsigned char pin);
 
     /** Check if a given pin is an allowed pwm pin. */
-    static bool IsSafePwmPin(unsigned char pin);
+    static constexpr bool IsSafePwmPin(unsigned char pin);
 
     /** Checks if a given pin is an allowed analog pin. */
-    static bool IsSafeAnalogPin(unsigned char pin);
+    static constexpr bool IsSafeAnalogPin(unsigned char pin);
 
     // Flashes the CRC_LED_ST to indicate program is not stuck somewhere
     static void StatusHeartbeat();
@@ -379,25 +379,25 @@ private:
 
     static ServoInfo _servos[12];
 
-    static unsigned char _pwmPins[12];
+    static const unsigned char _pwmPins[12];
 
     /** Neopixel pin */
-    static const unsigned char CRC_LED_NEO;
+    static constexpr unsigned char CRC_LED_NEO = 32;
 
     /** Status LED pin, green. */
-    static const unsigned char CRC_LED_ST;
+    static constexpr unsigned char CRC_LED_ST = 34;
 
     /** Fail LED pin, red. */
-    static const unsigned char CRC_LED_FAIL;
+    static constexpr unsigned char CRC_LED_FAIL = 39;
 
     /** Buzzer pin */
-    static const unsigned char CRC_BUZZER;
+    static constexpr unsigned char CRC_BUZZER = 46;
 
     /** 2560 output going to TXD pin of the Board XBee */
-    static const unsigned char CRC_TXD_XBEE;
+    static constexpr unsigned char CRC_TXD_XBEE = 16;
 
     /** 2560 input coming from RXD pin of the Board XBee */
-    static const unsigned char CRC_RXD_XBEE;
+    static constexpr unsigned char CRC_RXD_XBEE = 17;
 
     static CrcUtility::CrcNeo _crcNeo;
 

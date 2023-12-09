@@ -25,12 +25,12 @@ void CrcNeo::StartPattern(ColorPattern* pattern)
 void CrcNeo::Update(unsigned int delta)
 {
 
-    if (_currentPattern == NULL)
+    if (_currentPattern == NO_COLOR_PATTERN)
         return;
 
     if (_currentPattern->Update(
             delta, [](Color c, void* self) { ((CrcNeo*)self)->SetColor(c); },
             this))
-        _currentPattern = NULL;
+        _currentPattern = NO_COLOR_PATTERN;
 }
 }

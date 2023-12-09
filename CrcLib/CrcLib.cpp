@@ -7,27 +7,23 @@ unsigned int CrcLib::_deltaTime = 0;
 unsigned int CrcLib::_hbCountdown = SCAN_COUNT_HB;
 bool CrcLib::_commsLastConnected = false;
 bool CrcLib::_buzzer = true;
-const unsigned char CrcLib::CRC_LED_NEO = 32;
-const unsigned char CrcLib::CRC_LED_ST = 34;
-const unsigned char CrcLib::CRC_LED_FAIL = 39;
-const unsigned char CrcLib::CRC_BUZZER = 46;
-const unsigned char CrcLib::CRC_TXD_XBEE = 16;
-const unsigned char CrcLib::CRC_RXD_XBEE = 17;
-CrcUtility::CrcNeo CrcLib::_crcNeo = CrcUtility::CrcNeo(CRC_LED_NEO);
-CrcUtility::CrcXbee CrcLib::_crcXbee = CrcUtility::CrcXbee();
-CrcUtility::CrcBuzz CrcLib::_crcBuzz = CrcUtility::CrcBuzz();
+CrcUtility::CrcNeo CrcLib::_crcNeo {CRC_LED_NEO};
+CrcUtility::CrcXbee CrcLib::_crcXbee {};
+CrcUtility::CrcBuzz CrcLib::_crcBuzz {};
 
-struct CrcLib::ServoInfo CrcLib::_servos[12]
-    = { { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
-          { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
-          { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
-          { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
-          { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
-          { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false } };
+CrcLib::ServoInfo CrcLib::_servos[12] {
+    { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
+    { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
+    { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
+    { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
+    { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false },
+    { nullptr, 1000, 2000, false }, { nullptr, 1000, 2000, false }
+};
 
-unsigned char CrcLib::_pwmPins[12]
-    = { CRC_PWM_1, CRC_PWM_2, CRC_PWM_3, CRC_PWM_4, CRC_PWM_5, CRC_PWM_6,
-          CRC_PWM_7, CRC_PWM_8, CRC_PWM_9, CRC_PWM_10, CRC_PWM_11, CRC_PWM_12 };
+const unsigned char CrcLib::_pwmPins[12] {
+    CRC_PWM_1, CRC_PWM_2, CRC_PWM_3, CRC_PWM_4, CRC_PWM_5, CRC_PWM_6,
+    CRC_PWM_7, CRC_PWM_8, CRC_PWM_9, CRC_PWM_10, CRC_PWM_11, CRC_PWM_12
+};
 
 CrcLib::CrcLib()
 {
@@ -47,9 +43,9 @@ void CrcLib::Update()
     uint8_t status;
     if (bat >= 12.5) {
         status = 0b1010; // Green stable
-    } else if (bat >= 12.) {
+    } else if (bat >= 12.0) {
         status = 0b1111; // Orange stable
-    } else if (bat >= 11.) {
+    } else if (bat >= 11.0) {
         status = 0b0101; // Red stable
     } else {
         status = 0b0100; // Red - black - red - black - etc.
@@ -124,7 +120,7 @@ bool CrcLib::ReadDigitalChannel(BUTTON channel)
 
 int8_t CrcLib::ReadAnalogChannel(ANALOG channel)
 {
-    return _crcXbee.ReadAnalogChannel(channel) - 128;
+    return (int8_t)(_crcXbee.ReadAnalogChannel(channel) - 128);
 }
 
 void CrcLib::MoveTank(int8_t leftChannel,
@@ -339,7 +335,7 @@ void CrcLib::SetDigitalOutput(unsigned char pin, unsigned char value)
     digitalWrite(pin, value);
 }
 
-bool CrcLib::IsSafeDigitalPin(unsigned char pin)
+constexpr bool CrcLib::IsSafeDigitalPin(unsigned char pin)
 {
     switch (pin) {
     case CRC_DIG_1:
@@ -367,20 +363,20 @@ void CrcLib::SetPwmOutput(unsigned char pin, char value)
 
     int index = PinToServoIndex(pin);
 
-    ServoInfo* servo = &(_servos[index]);
+    ServoInfo& servo = _servos[index];
 
-    if (servo->servo == nullptr)
+    if (servo.servo == nullptr)
         StopEverythingFromError(ERROR_SERVO_NOT_INITIALIZED);
 
-    int mapped_value = (servo->minPulseWidth + servo->maxPulseWidth) / 2;
+    int mapped_value = (servo.minPulseWidth + servo.maxPulseWidth) / 2;
 
     if (value
         != 0) // Évite un potentiel lag si le joystick est au neutre, p-t que ça
               //  va se transformer en genre 1501 et envoyer un faible signal...
-        mapped_value = map(value * servo->reverse, -128, 127,
-            servo->minPulseWidth, servo->maxPulseWidth);
+        mapped_value = map(value * servo.reverse, -128, 127,
+            servo.minPulseWidth, servo.maxPulseWidth);
 
-    servo->servo->writeMicroseconds(mapped_value);
+    servo.servo->writeMicroseconds(mapped_value);
 }
 
 void CrcLib::InitializePwmOutput(unsigned char pin)
@@ -411,19 +407,19 @@ void CrcLib::InitializePwmOutput(
 
     int index = PinToServoIndex(pin);
 
-    ServoInfo* servo = &(_servos[index]);
+    ServoInfo& servo = _servos[index];
 
-    if (servo->servo != nullptr)
+    if (servo.servo != nullptr)
         StopEverythingFromError(ERROR_SERVO_ALREADY_INITIALIZED);
 
-    servo->servo = new Servo();
-    servo->servo->attach(pin, minPulseWidth, maxPulseWidth);
-    servo->minPulseWidth = minPulseWidth;
-    servo->maxPulseWidth = maxPulseWidth;
-    servo->reverse = reverse ? -1 : 1;
+    servo.servo = new Servo();
+    servo.servo->attach(pin, minPulseWidth, maxPulseWidth);
+    servo.minPulseWidth = minPulseWidth;
+    servo.maxPulseWidth = maxPulseWidth;
+    servo.reverse = reverse ? -1 : 1;
 }
 
-int CrcLib::PinToServoIndex(unsigned char pin)
+constexpr int CrcLib::PinToServoIndex(unsigned char pin)
 {
     switch (pin) {
     case CRC_PWM_1: return 0;
@@ -442,7 +438,7 @@ int CrcLib::PinToServoIndex(unsigned char pin)
     }
 }
 
-bool CrcLib::IsSafePwmPin(unsigned char pin)
+constexpr bool CrcLib::IsSafePwmPin(unsigned char pin)
 {
     switch (pin) {
     case CRC_PWM_1:
@@ -471,7 +467,7 @@ unsigned int CrcLib::GetAnalogInput(unsigned char pin)
     return analogRead(pin);
 }
 
-bool CrcLib::IsSafeAnalogPin(unsigned char pin)
+constexpr bool CrcLib::IsSafeAnalogPin(unsigned char pin)
 {
     switch (pin) {
     case CRC_ANA_1:
@@ -600,9 +596,7 @@ void CrcLib::StopAllOutput()
     // If no servo, then set output to 0,
     // but if servo, then set servo to not move.
     for (int i = 0; i < 12; i++) {
-        ServoInfo* servo = &(_servos[i]);
-
-        if (servo->servo == nullptr) {
+        if (_servos[i].servo == nullptr) {
             analogWrite(_pwmPins[i], 0);
             continue;
         } else {
@@ -627,9 +621,7 @@ void CrcLib::Timer::Next() { _started += _delay; }
 
 void CrcLib::PlayTune(const Note notes[], bool repeat)
 {
-    static SimpleTune static_tune;
-
-    static_tune = SimpleTune(notes, repeat);
+    static SimpleTune static_tune { notes, repeat };
     PlayTune(&static_tune);
 }
 
@@ -639,9 +631,7 @@ void CrcLib::SetColor(const Color color) { _crcNeo.SetColor(color); }
 
 void CrcLib::ShowColorPattern(const ColorDuration pattern[], bool repeat)
 {
-    static SimpleColorPattern static_pattern;
-
-    static_pattern = SimpleColorPattern(pattern, repeat);
+    static SimpleColorPattern static_pattern { pattern, repeat };
     ShowColorPattern(&static_pattern);
 }
 
